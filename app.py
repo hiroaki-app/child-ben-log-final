@@ -149,9 +149,9 @@ if not filtered_df.empty:
     )
     if st.button("履歴を保存"):
 
-    edited_df.to_csv(FILE, index=False)
+        edited_df.to_csv(FILE, index=False)
 
-    st.success("履歴を更新しました！")
+        st.success("履歴を更新しました！")
 
 else:
     st.info("まだ記録がありません")
