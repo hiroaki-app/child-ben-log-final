@@ -3,9 +3,12 @@ import streamlit as st
 import pandas as pd
 from streamlit_calendar import calendar
 import os
-from datetime import datetime
+
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+
 from io import BytesIO
 
 FILE = "child_ben_log.csv"
