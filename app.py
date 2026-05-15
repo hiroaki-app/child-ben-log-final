@@ -49,7 +49,18 @@ with st.form("record_form"):
 
     JST = timezone(timedelta(hours=9))
     now = datetime.now(JST)
-    st.write("記録時刻:", now.strftime("%Y-%m-%d %H:%M"))
+
+    selected_date = st.date_input(
+    "日付",
+    value=now.date()
+    )
+
+    selected_time = st.time_input(
+    "時刻",
+    value=now.time()
+    )
+
+    record_datetime = datetime.combine(selected_date, selected_time)
 
     hardness = st.slider("硬さ（1やわらかい〜7かたい）", 1, 7, 4)
     amount = st.radio("量", ["少", "中", "多"])
@@ -61,7 +72,7 @@ with st.form("record_form"):
 
     if submitted:
         new_data = {
-            "日時": now.strftime("%Y-%m-%d %H:%M"),
+            "日時": record_datetime.strftime("%Y-%m-%d %H:%M"),
             "硬さ": hardness,
             "量": amount,
             "色": color,
