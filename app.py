@@ -4,6 +4,9 @@ import pandas as pd
 from streamlit_calendar import calendar
 import os
 from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
 
 FILE = "child_ben_log.csv"
 
@@ -132,3 +135,49 @@ st.dataframe(
 
 else:
     st.info("まだ記録がありません")
+
+st.subheader("📄 診察用PDF")
+
+if st.button("PDFを作成"):
+
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(buffer)
+
+    styles = getSampleStyleSheet()
+
+    elements = []
+
+    elements.append(
+        Paragraph("排便記録", styles['Title'])
+    )
+
+    elements.append(Spacer(1, 12))
+
+    for _, row in filtered_df.iterrows():
+
+        text = (
+            f"{row['日時']} / "
+            f"便スケール:{row['硬さ']} / "
+            f"量:{row['量']} / "
+            f"色:{row['色']} / "
+            f"出血:{row['出血']} / "
+            f"メモ:{row['メモ']}"
+        )
+
+        elements.append(
+            Paragraph(text, styles['BodyText'])
+        )
+
+        elements.append(Spacer(1, 6))
+
+    doc.build(elements)
+
+    pdf = buffer.getvalue()
+
+    st.download_button(
+        label="PDFダウンロード",
+        data=pdf,
+        file_name="排便記録.pdf",
+        mime="application/pdf"
+    )
