@@ -14,6 +14,16 @@ from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from io import BytesIO
 
 FILE = "child_ben_log.csv"
+if not os.path.exists(FILE):
+    pd.DataFrame(columns=[
+        "日時",
+        "硬さ",
+        "量",
+        "色",
+        "出血",
+        "薬量",
+        "メモ"
+    ]).to_csv(FILE, index=False)
 
 st.set_page_config(
     page_title="幼児 排便記録",
@@ -184,19 +194,19 @@ if not filtered_df.empty:
 
         st.success("履歴を更新しました！")
 
-st.subheader("記録削除")
+    st.subheader("記録削除")
 
-delete_index = st.selectbox(
-    "削除する記録を選択",
-    df.index,
-    format_func=lambda x:
-        f"{df.loc[x, '日時']} / 硬さ:{df.loc[x, '硬さ']} / 量:{df.loc[x, '量']}"
-)
+    delete_index = st.selectbox(
+        "削除する記録を選択",
+        df.index,
+        format_func=lambda x:
+            f"{df.loc[x, '日時']} / 硬さ:{df.loc[x, '硬さ']} / 量:{df.loc[x, '量']}"
+    )
 
-if st.button("この記録を削除", use_container_width=True):
-    df = df.drop(delete_index)
-    df.to_csv(FILE, index=False)
-    st.success("削除しました！")
+    if st.button("この記録を削除", use_container_width=True):
+        df = df.drop(delete_index)
+        df.to_csv(FILE, index=False)
+        st.success("削除しました！")
 
 else:
     st.info("まだ記録がありません")
@@ -294,4 +304,4 @@ with open(FILE, "rb") as file:
         file_name="排便記録_backup.csv",
         mime="text/csv",
         use_container_width=True
-    )
+    )    
