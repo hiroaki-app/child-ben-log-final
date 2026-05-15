@@ -117,10 +117,16 @@ if period != "全期間":
 st.subheader("履歴")
 
 if not filtered_df.empty:
-    st.dataframe(
-        filtered_df.sort_values("日時", ascending=False),
-        use_container_width=True
-    )
+    display_df = filtered_df.sort_values("日時", ascending=False).copy()
+
+display_df["出血"] = display_df["出血"].apply(
+    lambda x: "🔴あり" if x else ""
+)
+
+st.dataframe(
+    display_df,
+    use_container_width=True
+)
 
     st.line_chart(filtered_df["硬さ"])
 
