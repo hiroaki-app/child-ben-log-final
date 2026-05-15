@@ -62,7 +62,12 @@ with st.form("record_form"):
 
     record_datetime = datetime.combine(selected_date, selected_time)
 
-    hardness = st.slider("硬さ（1やわらかい〜7かたい）", 1, 7, 4)
+    hardness = st.slider(
+    "便スケール（1=コロコロ硬便 / 7=水様便）",
+    1,
+    7,
+    4
+    )
     amount = st.radio("量", ["少", "中", "多"])
     color = st.selectbox("色", ["黄", "茶", "濃茶", "黒", "緑"])
     blood = st.checkbox("出血あり")
