@@ -178,6 +178,12 @@ if st.button("PDFを作成"):
 
     styles = getSampleStyleSheet()
 
+    pdfmetrics.registerFont(
+        UnicodeCIDFont('HeiseiKakuGo-W5')
+    )
+
+    styles['Title'].fontName = 'HeiseiKakuGo-W5'
+    styles['BodyText'].fontName = 'HeiseiKakuGo-W5'
     elements = []
 
     elements.append(
