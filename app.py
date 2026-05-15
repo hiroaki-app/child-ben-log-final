@@ -134,8 +134,10 @@ st.subheader("履歴")
 if not filtered_df.empty:
     display_df = filtered_df.sort_values("日時", ascending=False).copy()
 
+    display_df["出血"] = display_df["出血"].fillna(False)
+
     display_df["出血"] = display_df["出血"].apply(
-        lambda x: "🔴あり" if x else ""
+        lambda x: "🔴あり" if str(x) == "True" else ""
     )
 
     columns_to_show = ["日時", "硬さ", "量", "色", "出血", "メモ"]
