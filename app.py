@@ -84,7 +84,7 @@ with st.form("record_form"):
         ],
         horizontal=True
     )
-    memo = st.text_input("メモ")
+    memo = st.text_area("メモ")
 
     submitted = st.form_submit_button("記録する")
 
