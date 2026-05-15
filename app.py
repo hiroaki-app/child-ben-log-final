@@ -28,7 +28,7 @@ st.subheader("📅 排便カレンダー")
 events = []
 for _, row in df.iterrows():
     events.append({
-    "title": f"{'🔴' if row['出血'] else '🟢'} {row['硬さ']} / {row['量']}",
+    "title": f"{'🔴' if str(row['出血']) == 'True' else '🟢'} {row['硬さ']} / {row['量']}",
     "start": row["日時"][:10]
     })
 calendar_options = {
@@ -148,9 +148,9 @@ if not filtered_df.empty:
     display_df = display_df[columns_to_show]
     edited_df = st.data_editor(
     
-    display_df,
-    use_container_width=True,
-    num_rows="dynamic"
+        display_df,
+        use_container_width=True,
+        num_rows="dynamic"
     )
     if st.button("履歴を保存"):
 
