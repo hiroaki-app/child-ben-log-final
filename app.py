@@ -25,8 +25,8 @@ st.subheader("📅 排便カレンダー")
 events = []
 for _, row in df.iterrows():
     events.append({
-        "title": "🟢 排便",
-        "start": row["日時"][:10]
+    "title": f"🟢 {row['硬さ']}",
+    "start": row["日時"][:10]
     })
 
 calendar_options = {
