@@ -206,7 +206,9 @@ if st.button("PDFを作成"):
 
     elements.append(Spacer(1, 10))
 
-    for _, row in filtered_df.iterrows():
+    pdf_df = filtered_df.sort_values("日時")
+
+    for _, row in pdf_df.iterrows():
 
         text = (
             f"{str(row['日時'])} / "
