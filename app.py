@@ -138,12 +138,20 @@ if not filtered_df.empty:
         lambda x: "🔴あり" if x else ""
     )
 
-    st.dataframe(
-        display_df,
-        use_container_width=True
+    display_df = display_df[
+        ["日時", "硬さ", "量", "色", "出血", "薬量", "メモ"]
+    ]
+    edited_df = st.data_editor(
+    
+    display_df,
+    use_container_width=True,
+    num_rows="dynamic"
     )
+    if st.button("履歴を保存"):
 
-    st.line_chart(filtered_df["硬さ"])
+    edited_df.to_csv(FILE, index=False)
+
+    st.success("履歴を更新しました！")
 
 else:
     st.info("まだ記録がありません")
