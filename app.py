@@ -190,7 +190,21 @@ if st.button("PDFを作成"):
         Paragraph("排便記録", styles['Title'])
     )
 
-    elements.append(Spacer(1, 12))
+    start_date = filtered_df["日時"].min()
+    end_date = filtered_df["日時"].max()
+
+    period_text = (
+        f"対象期間: "
+        f"{start_date.strftime('%Y/%m/%d')} "
+        f"〜 "
+        f"{end_date.strftime('%Y/%m/%d')}"
+    )
+
+    elements.append(
+        Paragraph(period_text, styles['BodyText'])
+    )
+
+    elements.append(Spacer(1, 10))
 
     for _, row in filtered_df.iterrows():
 
