@@ -6,6 +6,8 @@ import os
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Table, TableStyle
+from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 
@@ -13,9 +15,13 @@ from io import BytesIO
 
 FILE = "child_ben_log.csv"
 
-st.set_page_config(page_title="幼児 排便記録", layout="centered")
+st.set_page_config(
+    page_title="幼児 排便記録",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-st.title("🧸 幼児 排便記録アプリ")
+st.markdown("## 🌱 幼児 排便記録")
 
 # データ読み込み
 if os.path.exists(FILE):
@@ -45,6 +51,16 @@ calendar_options = {
 }
 
 calendar(events=events, options=calendar_options)
+today = datetime.now().strftime("%Y-%m-%d")
+
+today_df = df[
+    pd.to_datetime(df["日時"]).dt.strftime("%Y-%m-%d") == today
+]
+
+if today_df.empty:
+    st.warning("今日はまだ記録されていません")
+else:
+    st.success("今日は記録済みです")
 
 # -------------------
 # 入力フォーム
@@ -89,7 +105,10 @@ with st.form("record_form"):
     )
     memo = st.text_area("メモ")
 
-    submitted = st.form_submit_button("記録する")
+    submitted = st.form_submit_button(
+    "記録する",
+    use_container_width=True
+    )
 
     if submitted:
         new_data = {
@@ -208,29 +227,34 @@ if st.button("PDFを作成"):
 
     pdf_df = filtered_df.sort_values("日時")
 
+    data = [
+        ["日時", "硬さ", "量", "色", "薬量", "メモ"]
+    ]
+
     for _, row in pdf_df.iterrows():
 
-        text = (
-            f"{str(row['日時'])} / "
-            f"便スケール:{row['硬さ']} / "
-            f"量:{row['量']} / "
-            f"色:{row['色']}"
-        )
+        medicine = row["薬量"] if pd.notna(row["薬量"]) else ""
+        memo = row["メモ"] if pd.notna(row["メモ"]) else ""
 
-        if pd.notna(row['出血']) and str(row['出血']) != "False":
-            text += f" / 出血:{row['出血']}"
+        data.append([
+            str(row["日時"]),
+            str(row["硬さ"]),
+            str(row["量"]),
+            str(row["色"]),
+            str(medicine),
+            str(memo)
+        ])
 
-        if pd.notna(row.get('薬量')) and row.get('薬量') != "なし":
-            text += f" / 薬量:{row.get('薬量')}"
+    table = Table(data)
 
-        if pd.notna(row['メモ']) and str(row['メモ']).strip() != "":
-            text += f" / メモ:{row['メモ']}"
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
+        ("GRID", (0,0), (-1,-1), 1, colors.black),
+        ("FONTNAME", (0,0), (-1,-1), "HeiseiKakuGo-W5"),
+        ("FONTSIZE", (0,0), (-1,-1), 10),
+    ]))
 
-        elements.append(
-            Paragraph(text, styles['BodyText'])
-        )
-
-        elements.append(Spacer(1, 6))
+    elements.append(table)
 
     doc.build(elements)
 
