@@ -184,6 +184,20 @@ if not filtered_df.empty:
 
         st.success("履歴を更新しました！")
 
+st.subheader("記録削除")
+
+delete_index = st.selectbox(
+    "削除する記録を選択",
+    df.index,
+    format_func=lambda x:
+        f"{df.loc[x, '日時']} / 硬さ:{df.loc[x, '硬さ']} / 量:{df.loc[x, '量']}"
+)
+
+if st.button("この記録を削除", use_container_width=True):
+    df = df.drop(delete_index)
+    df.to_csv(FILE, index=False)
+    st.success("削除しました！")
+
 else:
     st.info("まだ記録がありません")
 
@@ -265,4 +279,19 @@ if st.button("PDFを作成"):
         data=pdf,
         file_name="排便記録.pdf",
         mime="application/pdf"
+    )
+# -------------------
+# CSVバックアップ
+# -------------------
+
+st.subheader("💾 CSVバックアップ")
+
+with open(FILE, "rb") as file:
+
+    st.download_button(
+        label="CSVをダウンロード",
+        data=file,
+        file_name="排便記録_backup.csv",
+        mime="text/csv",
+        use_container_width=True
     )
