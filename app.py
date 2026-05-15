@@ -25,10 +25,9 @@ st.subheader("📅 排便カレンダー")
 events = []
 for _, row in df.iterrows():
     events.append({
-    "title": f"🟢 {row['硬さ']}",
+    "title": f"{'🔴' if row['出血'] else '🟢'} {row['硬さ']} / {row['量']}",
     "start": row["日時"][:10]
     })
-
 calendar_options = {
     "initialView": "dayGridMonth",
     "locale": "ja",
