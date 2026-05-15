@@ -91,10 +91,38 @@ with st.form("record_form"):
 # -------------------
 # 履歴
 # -------------------
+
+st.subheader("表示期間")
+
+period = st.selectbox(
+
+    "期間を選択",
+
+    ["7日", "14日", "30日", "全期間"]
+
+)
+
+filtered_df = df.copy()
+
+if period != "全期間":
+
+    days = int(period.replace("日", ""))
+
+    filtered_df["日時"] = pd.to_datetime(filtered_df["日時"])
+
+    cutoff = datetime.now() - timedelta(days=days)
+
+    filtered_df = filtered_df[filtered_df["日時"] >= cutoff]
+
 st.subheader("履歴")
 
-if not df.empty:
-    st.dataframe(df.sort_values("日時", ascending=False), use_container_width=True)
-    st.line_chart(df["硬さ"])
+if not filtered_df.empty:
+    st.dataframe(
+        filtered_df.sort_values("日時", ascending=False),
+        use_container_width=True
+    )
+
+    st.line_chart(filtered_df["硬さ"])
+
 else:
     st.info("まだ記録がありません")
