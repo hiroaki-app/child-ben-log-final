@@ -195,14 +195,20 @@ if st.button("PDFを作成"):
     for _, row in filtered_df.iterrows():
 
         text = (
-            f"{row['日時']} / "
+            f"{str(row['日時'])} / "
             f"便スケール:{row['硬さ']} / "
             f"量:{row['量']} / "
-            f"色:{row['色']} / "
-            f"出血:{row['出血']} / "
-            f"薬量:{row.get('薬量', '')} / "
-            f"メモ:{row['メモ']}"
+            f"色:{row['色']}"
         )
+
+        if pd.notna(row['出血']) and str(row['出血']) != "False":
+            text += f" / 出血:{row['出血']}"
+
+        if pd.notna(row.get('薬量')) and row.get('薬量') != "なし":
+            text += f" / 薬量:{row.get('薬量')}"
+
+        if pd.notna(row['メモ']) and str(row['メモ']).strip() != "":
+            text += f" / メモ:{row['メモ']}"
 
         elements.append(
             Paragraph(text, styles['BodyText'])
