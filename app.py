@@ -131,7 +131,7 @@ st.dataframe(
     use_container_width=True
 )
 
-    st.line_chart(filtered_df["硬さ"])
+st.line_chart(filtered_df["硬さ"])
 
 else:
     st.info("まだ記録がありません")
