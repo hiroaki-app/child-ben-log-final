@@ -119,16 +119,20 @@ period = st.selectbox(
 
 filtered_df = df.copy()
 
+filtered_df["日時"] = pd.to_datetime(
+    filtered_df["日時"],
+    errors="coerce"
+)
+
 if period != "全期間":
 
     days = int(period.replace("日", ""))
 
-    filtered_df["日時"] = pd.to_datetime(filtered_df["日時"])
+    cutoff = pd.Timestamp.now() - pd.Timedelta(days=days)
 
-    cutoff = datetime.now() - timedelta(days=days)
-
-    filtered_df = filtered_df[filtered_df["日時"] >= cutoff]
-
+    filtered_df = filtered_df[
+        filtered_df["日時"] >= cutoff
+    ]
 st.subheader("履歴")
 
 if not filtered_df.empty:
