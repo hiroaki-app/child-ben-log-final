@@ -138,9 +138,12 @@ if not filtered_df.empty:
         lambda x: "🔴あり" if x else ""
     )
 
-    display_df = display_df[
-        ["日時", "硬さ", "量", "色", "出血", "薬量", "メモ"]
-    ]
+    columns_to_show = ["日時", "硬さ", "量", "色", "出血", "メモ"]
+
+    if "薬量" in display_df.columns:
+        columns_to_show.insert(5, "薬量")
+
+    display_df = display_df[columns_to_show]
     edited_df = st.data_editor(
     
     display_df,
