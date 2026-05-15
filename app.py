@@ -95,7 +95,7 @@ with st.form("record_form"):
             "量": amount,
             "色": color,
             "出血": blood,
-            "薬": medicine,
+            "薬量": medicine,
             "メモ": memo
         }
 
