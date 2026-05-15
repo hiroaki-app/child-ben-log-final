@@ -18,7 +18,7 @@ st.title("🧸 幼児 排便記録アプリ")
 if os.path.exists(FILE):
     df = pd.read_csv(FILE)
 else:
-    df = pd.DataFrame(columns=["日時","硬さ","量","色","出血","メモ"])
+    df = pd.DataFrame(columns=["日時","硬さ","量","色","出血","薬量","メモ"])
 
 # -------------------
 # カレンダー表示（フォームの外）
@@ -73,6 +73,17 @@ with st.form("record_form"):
     amount = st.radio("量", ["少", "中", "多"])
     color = st.selectbox("色", ["黄", "茶", "濃茶", "黒", "緑"])
     blood = st.checkbox("出血あり")
+    medicine = st.radio(
+        "薬量",
+        [
+            "なし",
+            "1/4",
+            "半分",
+            "3/4",
+            "1包"
+        ],
+        horizontal=True
+    )
     memo = st.text_input("メモ")
 
     submitted = st.form_submit_button("記録する")
@@ -84,6 +95,7 @@ with st.form("record_form"):
             "量": amount,
             "色": color,
             "出血": blood,
+            "薬": medicine,
             "メモ": memo
         }
 
@@ -162,6 +174,7 @@ if st.button("PDFを作成"):
             f"量:{row['量']} / "
             f"色:{row['色']} / "
             f"出血:{row['出血']} / "
+            f"薬:{row['薬']} / "
             f"メモ:{row['メモ']}"
         )
 
