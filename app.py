@@ -133,7 +133,7 @@ if period != "全期間":
     filtered_df = filtered_df[
         filtered_df["日時"] >= cutoff
     ]
-st.subheader("履歴")
+st.subheader("排便記録")
 
 if not filtered_df.empty:
     display_df = filtered_df.sort_values("日時", ascending=False).copy()
@@ -191,7 +191,7 @@ if st.button("PDFを作成"):
             f"量:{row['量']} / "
             f"色:{row['色']} / "
             f"出血:{row['出血']} / "
-            f"薬:{row['薬']} / "
+            f"薬量:{row.get('薬量', '')} / "
             f"メモ:{row['メモ']}"
         )
 
