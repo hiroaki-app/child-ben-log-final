@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import streamlit as st
 import pandas as pd
+from datetime import date
 from streamlit_calendar import calendar
 import os
 
@@ -14,6 +15,8 @@ from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from io import BytesIO
 
 FILE = "child_ben_log.csv"
+MED_FILE = "medicine_log.csv"
+
 if not os.path.exists(FILE):
     pd.DataFrame(columns=[
         "日時",
@@ -21,7 +24,8 @@ if not os.path.exists(FILE):
         "量",
         "色",
         "出血",
-        "薬量",
+        "腹痛",
+        "排便痛",
         "メモ"
     ]).to_csv(FILE, index=False)
 
@@ -33,11 +37,15 @@ st.set_page_config(
 
 st.markdown("## 🌱 幼児 排便記録")
 
-# データ読み込み
-if os.path.exists(FILE):
-    df = pd.read_csv(FILE)
-else:
-    df = pd.DataFrame(columns=["日時","硬さ","量","色","出血","薬量","メモ"])
+tab1, tab2 = st.tabs([" 排便記録", "💊 薬記録"])
+
+with tab1:
+
+    # データ読み込み
+    if os.path.exists(FILE):
+        df = pd.read_csv(FILE)
+    else:
+        df = pd.DataFrame(columns=["日時","硬さ","量","色","出血","メモ"])
 
 # -------------------
 # カレンダー表示（フォームの外）
@@ -64,9 +72,8 @@ calendar(events=events, options=calendar_options)
 today = datetime.now().strftime("%Y-%m-%d")
 
 today_df = df[
-    pd.to_datetime(df["日時"]).dt.strftime("%Y-%m-%d") == today
+    pd.to_datetime(df["日時"], errors="coerce").dt.strftime("%Y-%m-%d") == today
 ]
-
 if today_df.empty:
     st.warning("今日はまだ記録されていません")
 else:
@@ -102,17 +109,8 @@ with st.form("record_form"):
     amount = st.radio("量", ["少", "中", "多"])
     color = st.selectbox("色", ["黄", "茶", "濃茶", "黒", "緑"])
     blood = st.checkbox("出血あり")
-    medicine = st.radio(
-        "薬量",
-        [
-            "なし",
-            "1/4",
-            "半分",
-            "3/4",
-            "1包"
-        ],
-        horizontal=True
-    )
+    
+        
     memo = st.text_area("メモ")
 
     submitted = st.form_submit_button(
@@ -127,7 +125,6 @@ with st.form("record_form"):
             "量": amount,
             "色": color,
             "出血": blood,
-            "薬量": medicine,
             "メモ": memo
         }
 
@@ -290,6 +287,37 @@ if st.button("PDFを作成"):
         file_name="排便記録.pdf",
         mime="application/pdf"
     )
+
+with tab2:
+
+    st.subheader("💊 薬記録")
+    med_date = st.date_input("日付", value=date.today())
+
+    medicine_amount = st.radio(
+        "薬量",
+        ["なし", "少", "普", "多"],
+        horizontal=True
+    )
+
+    memo = st.text_input("メモ（任意）")
+
+    if st.button("薬を保存"):
+
+        new_data = pd.DataFrame([{
+            "日付": med_date,
+            "薬量": medicine_amount,
+            "メモ": memo
+        }])
+
+        if os.path.exists(MED_FILE):
+            old_data = pd.read_csv(MED_FILE)
+            med_df = pd.concat([old_data, new_data], ignore_index=True)
+        else:
+            med_df = new_data
+
+        med_df.to_csv(MED_FILE, index=False)
+
+        st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
 # -------------------
