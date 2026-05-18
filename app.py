@@ -154,7 +154,7 @@ INSERT INTO poop_logs
 VALUES (?, ?, ?, ?, ?, ?)
 """, (
     now,
-    naraness,
+    hardness,
     amount,
     color,
     blood,
@@ -209,12 +209,12 @@ columns_to_show = ["日時", "硬さ", "量", "色", "出血", "メモ"]
 
 if "薬量" in filtered_df.columns:
     columns_to_show.insert(5, "薬量")
-    display_df = display_df[columns_to_show]
-    edited_df = st.data_editor(    
-        display_df,
-        use_container_width=True,
-        num_rows="dynamic"
-        )
+display_df = display_df[columns_to_show]
+edited_df = st.data_editor(    
+    display_df,
+    use_container_width=True,
+    num_rows="dynamic"
+    )
 if st.button("履歴を保存"):
 
     edited_df.to_csv(FILE, index=False)
