@@ -350,13 +350,13 @@ if st.button("薬を保存"):
         "メモ": memo
     }])
 
-if os.path.exists(MED_FILE):
-    old_data = pd.read_csv(MED_FILE)
-    med_df = pd.concat([old_data, new_data], ignore_index=True)
-else:
-    med_df = new_data
+    if os.path.exists(MED_FILE):
+        old_data = pd.read_csv(MED_FILE)
+        med_df = pd.concat([old_data, new_data], ignore_index=True)
+    else:
+        med_df = new_data
 
-med_df.to_csv(MED_FILE, index=False)
+    med_df.to_csv(MED_FILE, index=False)
 
     st.success("薬記録を保存しました")
 # -------------------
