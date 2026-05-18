@@ -89,16 +89,16 @@ with tab1:
 
     events = []
     med_df = pd.read_sql_query(
-    "SELECT * FROM medicine_logs",
-    conn
+        "SELECT * FROM medicine_logs",
+        conn
     )
 
-        med_dates = set(
-            pd.to_datetime(
-                med_df["日付"],
-                errors="coerce"
-            ).dt.strftime("%Y-%m-%d")
-        )
+    med_dates = set(
+        pd.to_datetime(
+            med_df["日付"],
+            errors="coerce"
+        ).dt.strftime("%Y-%m-%d")
+    )
 
     else:
 
