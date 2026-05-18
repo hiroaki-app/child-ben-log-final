@@ -95,7 +95,7 @@ with tab1:
 
     med_dates = set(
         pd.to_datetime(
-            med_df["日付"],
+            med_df["date"],
             errors="coerce"
         ).dt.strftime("%Y-%m-%d")
     )
