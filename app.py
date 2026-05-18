@@ -47,6 +47,13 @@ if not os.path.exists(FILE):
         "排便痛",
         "メモ"
     ]).to_csv(FILE, index=False)
+if not os.path.exists(MED_FILE):
+
+    pd.DataFrame(columns=[
+        "日付",
+        "薬量",
+        "メモ"
+    ]).to_csv(MED_FILE, index=False)
 
 st.set_page_config(
     page_title="幼児 排便記録",
