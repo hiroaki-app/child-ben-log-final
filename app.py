@@ -105,8 +105,8 @@ calendar_options = {
     }
 }
 
-    calendar(events=events, options=calendar_options)
-    today = datetime.now().strftime("%Y-%m-%d")
+calendar(events=events, options=calendar_options)
+today = datetime.now().strftime("%Y-%m-%d")
 
     today_df = df[
         pd.to_datetime(df["日時"], errors="coerce").dt.strftime("%Y-%m-%d") == today
