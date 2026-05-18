@@ -91,7 +91,7 @@ with tab1:
         events.append({
         "title": (
             f"{row['硬さ']} / {row['量']}"
-            f"{' 💊' if row['日時'][:10] in med_dates else ''}"
+            f"{' 💊' if pd.to_datetime(row['日時']).strftime('%Y-%m-%d') in med_dates else ''}"
         ),
         "start": row["日時"][:10]
         })
