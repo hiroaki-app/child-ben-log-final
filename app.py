@@ -19,6 +19,11 @@ FILE = "child_ben_log.csv"
 MED_FILE = "medicine_log.csv"
 DB_FILE = "poop_log.db"
 
+st.write(DB_FILE)
+
+import os
+st.write(os.getcwd())
+
 # SQLiteデータベースの初期化
 conn = sqlite3.connect(DB_FILE)
 c = conn.cursor()
