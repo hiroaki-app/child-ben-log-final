@@ -33,6 +33,15 @@ c.execute('''
         memo TEXT
     )
 ''')
+c.execute('''
+    CREATE TABLE IF NOT EXISTS medicine_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT,
+        medicine_amount TEXT,
+        memo TEXT
+    )
+''')
+
 conn.commit()
 # conn.close()
 
@@ -370,28 +379,19 @@ with tab2:
 
     if st.button("薬を保存"):
 
-        new_data = pd.DataFrame([{
-            "日付": med_date,
-            "薬量": medicine_amount,
-            "メモ": memo
-        }])
+    c.execute("""
+        INSERT INTO medicine_logs
+        (date, medicine_amount, memo)
+        VALUES (?, ?, ?)
+    """, (
+        str(med_date),
+        medicine_amount,
+        memo
+    ))
 
-        if os.path.exists(MED_FILE):
+    conn.commit()
 
-            old_data = pd.read_csv(MED_FILE)
-
-            med_df = pd.concat(
-                [old_data, new_data],
-                ignore_index=True
-            )
-
-        else:
-
-            med_df = new_data
-
-        med_df.to_csv(MED_FILE, index=False)
-
-        st.success("薬記録を保存しました")
+    st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
 # -------------------
