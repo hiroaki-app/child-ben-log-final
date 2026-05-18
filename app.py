@@ -332,32 +332,41 @@ with open(FILE, "rb") as file:
 with tab2:
 
     st.subheader("💊 薬記録")
+
     med_date = st.date_input("日付", value=date.today())
+
     medicine_amount = st.radio(
         "薬量",
         ["なし", "少", "普", "多"],
         horizontal=True
     )
 
-memo = st.text_input("メモ（任意）")
+    memo = st.text_input("メモ（任意）")
 
-if st.button("薬を保存"):
+    if st.button("薬を保存"):
 
-    new_data = pd.DataFrame([{
-        "日付": med_date,
-        "薬量": medicine_amount,
-        "メモ": memo
-    }])
+        new_data = pd.DataFrame([{
+            "日付": med_date,
+            "薬量": medicine_amount,
+            "メモ": memo
+        }])
 
-if os.path.exists(MED_FILE):
-    old_data = pd.read_csv(MED_FILE)
-    med_df = pd.concat([old_data, new_data], ignore_index=True)
-else:
-    med_df = new_data
+        if os.path.exists(MED_FILE):
 
-    med_df.to_csv(MED_FILE, index=False)
+            old_data = pd.read_csv(MED_FILE)
 
-st.success("薬記録を保存しました")
+            med_df = pd.concat(
+                [old_data, new_data],
+                ignore_index=True
+            )
+
+        else:
+
+            med_df = new_data
+
+        med_df.to_csv(MED_FILE, index=False)
+
+        st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
 # -------------------
