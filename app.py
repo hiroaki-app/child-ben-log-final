@@ -100,10 +100,6 @@ with tab1:
         ).dt.strftime("%Y-%m-%d")
     )
 
-    else:
-
-        med_dates = set()
-
     for _, row in df.iterrows():
         events.append({
         "title": (
