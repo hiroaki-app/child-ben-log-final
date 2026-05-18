@@ -108,13 +108,13 @@ calendar_options = {
 calendar(events=events, options=calendar_options)
 today = datetime.now().strftime("%Y-%m-%d")
 
-    today_df = df[
-        pd.to_datetime(df["日時"], errors="coerce").dt.strftime("%Y-%m-%d") == today
-    ]
-    if today_df.empty:
-        st.warning("今日はまだ記録されていません")
-    else:
-        st.success("今日は記録済みです")
+today_df = df[
+    pd.to_datetime(df["日時"], errors="coerce").dt.strftime("%Y-%m-%d") == today
+]
+if today_df.empty:
+    st.warning("今日はまだ記録されていません")
+else:
+    st.success("今日は記録済みです")
 
     # -------------------
     # 入力フォーム
