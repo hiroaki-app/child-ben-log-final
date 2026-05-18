@@ -72,20 +72,38 @@ with tab1:
     st.subheader("📅 排便カレンダー")
 
     events = []
-    for _, row in df.iterrows():
-        events.append({
-        "title": f"{'🔴' if str(row['出血']) == 'True' else '🟢'} {row['硬さ']} / {row['量']}",
-        "start": row["日時"][:10]
-        })
-    calendar_options = {
-        "initialView": "dayGridMonth",
-        "locale": "ja",
-        "headerToolbar": {
-            "left": "prev,next today",
-            "center": "title",
-            "right": ""
-        }
+    if os.path.exists(MED_FILE):
+
+    med_df = pd.read_csv(MED_FILE)
+
+    med_dates = set(
+        pd.to_datetime(
+            med_df["日付"],
+            errors="coerce"
+        ).dt.strftime("%Y-%m-%d")
+    )
+
+else:
+
+    med_dates = set()
+
+for _, row in df.iterrows():
+    events.append({
+    "title": (
+        f"{row['硬さ']} / {row['量']}"
+        f"{' 💊' if row['日時'][:10] in med_dates else ''}"
+    ),
+    "start": row["日時"][:10]
+    })
+calendar_options = {
+    "initialView": "dayGridMonth",
+    "locale": "ja",
+    "headerToolbar": {
+        "left": "prev,next today",
+        "center": "title",
+        "right": ""
     }
+}
 
     calendar(events=events, options=calendar_options)
     today = datetime.now().strftime("%Y-%m-%d")
