@@ -320,7 +320,7 @@ if st.button("PDFを作成"):
         )
 st.subheader("💾 CSVバックアップ")
 
-with open(FILE, "rb") as file:
+with open(FILE, "rb") as file:  
 
     st.download_button(
         label="CSVをダウンロード",
