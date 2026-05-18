@@ -88,9 +88,10 @@ with tab1:
     st.subheader("📅 排便カレンダー")
 
     events = []
-    if os.path.exists(MED_FILE):
-
-        med_df = pd.read_csv(MED_FILE)
+    med_df = pd.read_sql_query(
+    "SELECT * FROM medicine_logs",
+    conn
+    )
 
         med_dates = set(
             pd.to_datetime(
