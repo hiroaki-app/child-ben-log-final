@@ -379,19 +379,19 @@ with tab2:
 
     if st.button("薬を保存"):
 
-    c.execute("""
-        INSERT INTO medicine_logs
-        (date, medicine_amount, memo)
-        VALUES (?, ?, ?)
-    """, (
-        str(med_date),
-        medicine_amount,
-        memo
-    ))
+        c.execute("""
+            INSERT INTO medicine_logs
+            (date, medicine_amount, memo)
+            VALUES (?, ?, ?)
+        """, (
+            str(med_date),
+            medicine_amount,
+            memo
+        ))
 
-    conn.commit()
+        conn.commit()
 
-    st.success("薬記録を保存しました")
+        st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
 # -------------------
