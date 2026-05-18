@@ -74,14 +74,14 @@ with tab1:
     events = []
     if os.path.exists(MED_FILE):
 
-    med_df = pd.read_csv(MED_FILE)
+        med_df = pd.read_csv(MED_FILE)
 
-    med_dates = set(
-        pd.to_datetime(
-            med_df["日付"],
-            errors="coerce"
-        ).dt.strftime("%Y-%m-%d")
-    )
+        med_dates = set(
+            pd.to_datetime(
+                med_df["日付"],
+                errors="coerce"
+            ).dt.strftime("%Y-%m-%d")
+        )
 
 else:
 
