@@ -149,20 +149,20 @@ with tab1:
 
             df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
             c.execute("""
-INSERT INTO poop_logs
-(date_time, hardness, amount, color, blood, memo)
-VALUES (?, ?, ?, ?, ?, ?)
-""", (
-    now,
-    hardness,
-    amount,
-    color,
-    blood,
-    memo
-))
-conn.commit()
-df.to_csv(FILE, index=False)
-st.success("記録しました！")
+            INSERT INTO poop_logs
+            (date_time, hardness, amount, color, blood, memo)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                now,
+                hardness,
+                amount,
+                color,
+                blood,
+                memo
+            ))
+            conn.commit()
+            df.to_csv(FILE, index=False)
+            st.success("記録しました！")
 
 # ------------------- 
 # 履歴
