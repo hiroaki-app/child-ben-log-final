@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import date
 from streamlit_calendar import calendar
 import os
+import sqlite3
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
@@ -16,6 +17,24 @@ from io import BytesIO
 
 FILE = "child_ben_log.csv"
 MED_FILE = "medicine_log.csv"
+DB_FILE = "poop_log.db"
+
+# SQLiteデータベースの初期化
+conn = sqlite3.connect(DB_FILE)
+c = conn.cursor()
+c.execute('''
+    CREATE TABLE IF NOT EXISTS poop_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_time TEXT,
+        hardness INTEGER,
+        amount TEXT,
+        color TEXT,
+        blood BOOLEAN,
+        memo TEXT
+    )
+''')
+conn.commit()
+# conn.close()
 
 if not os.path.exists(FILE):
     pd.DataFrame(columns=[
@@ -129,16 +148,29 @@ with tab1:
             }
 
             df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
-            df.to_csv(FILE, index=False)
-            st.success("記録しました！")
+            c.execute("""
+INSERT INTO poop_logs
+(date_time, hardness, amount, color, blood, memo)
+VALUES (?, ?, ?, ?, ?, ?)
+""", (
+    now,
+    naraness,
+    amount,
+    color,
+    blood,
+    memo
+))
+conn.commit()
+df.to_csv(FILE, index=False)
+st.success("記録しました！")
 
-    # -------------------
-    # 履歴
-    # -------------------
+# ------------------- 
+# 履歴
+# -------------------
 
-    st.subheader("表示期間")
+st.subheader("表示期間")
 
-    period = st.selectbox(
+period = st.selectbox(
 
         "期間を選択",
 
@@ -146,125 +178,124 @@ with tab1:
 
     )
 
-    filtered_df = df.copy()
+filtered_df = df.copy()
 
-    filtered_df["日時"] = pd.to_datetime(
-        filtered_df["日時"],
-        errors="coerce"
+filtered_df["日時"] = pd.to_datetime(
+    filtered_df["日時"],
+    errors="coerce"
+)
+
+if period != "全期間":
+
+    days = int(period.replace("日", ""))
+
+    cutoff = pd.Timestamp.now() - pd.Timedelta(days=days)
+
+    filtered_df = filtered_df[
+            filtered_df["日時"] >= cutoff
+    ]
+st.subheader("排便記録")
+
+if not filtered_df.empty:
+    display_df = filtered_df.sort_values("日時", ascending=False).copy()
+
+    display_df["出血"] = display_df["出血"].fillna(False)
+
+    display_df["出血"] = display_df["出血"].apply(
+        lambda x: "🔴あり" if str(x) == "True" else ""
     )
 
-    if period != "全期間":
+columns_to_show = ["日時", "硬さ", "量", "色", "出血", "メモ"]
 
-        days = int(period.replace("日", ""))
+if "薬量" in display_df.columns:
+    columns_to_show.insert(5, "薬量")
 
-        cutoff = pd.Timestamp.now() - pd.Timedelta(days=days)
-
-        filtered_df = filtered_df[
-            filtered_df["日時"] >= cutoff
-        ]
-    st.subheader("排便記録")
-
-    if not filtered_df.empty:
-        display_df = filtered_df.sort_values("日時", ascending=False).copy()
-
-        display_df["出血"] = display_df["出血"].fillna(False)
-
-        display_df["出血"] = display_df["出血"].apply(
-            lambda x: "🔴あり" if str(x) == "True" else ""
-        )
-
-        columns_to_show = ["日時", "硬さ", "量", "色", "出血", "メモ"]
-
-        if "薬量" in display_df.columns:
-            columns_to_show.insert(5, "薬量")
-
-        display_df = display_df[columns_to_show]
-        edited_df = st.data_editor(
+display_df = display_df[columns_to_show]
+edited_df = st.data_editor(
         
-            display_df,
-            use_container_width=True,
-            num_rows="dynamic"
-        )
-        if st.button("履歴を保存"):
+        display_df,
+        use_container_width=True,
+        num_rows="dynamic"
+    )
+if st.button("履歴を保存"):
 
-            edited_df.to_csv(FILE, index=False)
+    edited_df.to_csv(FILE, index=False)
+    st.success("履歴を更新しました！")
 
-            st.success("履歴を更新しました！")
+    st.subheader("記録削除")
 
-        st.subheader("記録削除")
+    delete_index = st.selectbox(
+        "削除する記録を選択",
+        df.index,
+        format_func=lambda x:
+            f"{df.loc[x, '日時']} / 硬さ:{df.loc[x, '硬さ']} / 量:{df.loc[x, '量']}"
+    )
 
-        delete_index = st.selectbox(
-            "削除する記録を選択",
-            df.index,
-            format_func=lambda x:
-                f"{df.loc[x, '日時']} / 硬さ:{df.loc[x, '硬さ']} / 量:{df.loc[x, '量']}"
-        )
+if st.button("この記録を削除", use_container_width=True):
+    df = df.drop(delete_index)
+    df.to_csv(FILE, index=False)
+    st.success("削除しました！")
 
-        if st.button("この記録を削除", use_container_width=True):
-            df = df.drop(delete_index)
-            df.to_csv(FILE, index=False)
-            st.success("削除しました！")
+else:
+    st.info("まだ記録がありません")
 
-    else:
-        st.info("まだ記録がありません")
+st.subheader("📄 診察用PDF")
 
-    st.subheader("📄 診察用PDF")
+if st.button("PDFを作成"):
 
-    if st.button("PDFを作成"):
+    buffer = BytesIO()
 
-        buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer)
 
-        doc = SimpleDocTemplate(buffer)
+    styles = getSampleStyleSheet()
 
-        styles = getSampleStyleSheet()
+    pdfmetrics.registerFont(
+        UnicodeCIDFont('HeiseiKakuGo-W5')
+    )
 
-        pdfmetrics.registerFont(
-            UnicodeCIDFont('HeiseiKakuGo-W5')
-        )
+    styles['Title'].fontName = 'HeiseiKakuGo-W5'
+    styles['BodyText'].fontName = 'HeiseiKakuGo-W5'
+    elements = []
 
-        styles['Title'].fontName = 'HeiseiKakuGo-W5'
-        styles['BodyText'].fontName = 'HeiseiKakuGo-W5'
-        elements = []
+    elements.append(
+        Paragraph("排便記録", styles['Title'])
+    )
 
-        elements.append(
-            Paragraph("排便記録", styles['Title'])
-        )
+    start_date = filtered_df["日時"].min()
+    end_date = filtered_df["日時"].max()
 
-        start_date = filtered_df["日時"].min()
-        end_date = filtered_df["日時"].max()
+    period_text = (
+        f"対象期間: "
+        f"{start_date.strftime('%Y/%m/%d')} "
+        f"〜 "
+        f"{end_date.strftime('%Y/%m/%d')}"
+    )
 
-        period_text = (
-            f"対象期間: "
-            f"{start_date.strftime('%Y/%m/%d')} "
-            f"〜 "
-            f"{end_date.strftime('%Y/%m/%d')}"
-        )
+    elements.append(
+        Paragraph(period_text, styles['BodyText'])
+    )
 
-        elements.append(
-            Paragraph(period_text, styles['BodyText'])
-        )
+    elements.append(Spacer(1, 10))
 
-        elements.append(Spacer(1, 10))
+    pdf_df = filtered_df.sort_values("日時")
 
-        pdf_df = filtered_df.sort_values("日時")
+    data = [
+        ["日時", "硬さ", "量", "色", "薬量", "メモ"]
+    ]
 
-        data = [
-            ["日時", "硬さ", "量", "色", "薬量", "メモ"]
-        ]
+    for _, row in pdf_df.iterrows():
 
-        for _, row in pdf_df.iterrows():
+        medicine = row["薬量"] if pd.notna(row["薬量"]) else ""
+        memo = row["メモ"] if pd.notna(row["メモ"]) else ""
 
-            medicine = row["薬量"] if pd.notna(row["薬量"]) else ""
-            memo = row["メモ"] if pd.notna(row["メモ"]) else ""
-
-            data.append([
-                str(row["日時"]),
-                str(row["硬さ"]),
-                str(row["量"]),
-                str(row["色"]),
-                str(medicine),
-                str(memo)
-            ])
+        data.append([
+        str(row["日時"]),
+        str(row["硬さ"]),
+        str(row["量"]),  
+        str(row["色"]),
+        str(medicine), 
+        str(memo)
+        ])
 
         table = Table(data)
 
@@ -292,6 +323,14 @@ st.subheader("💾 CSVバックアップ")
 with open(FILE, "rb") as file:
 
     st.download_button(
+        label="CSVをダウンロード",
+        data=file,
+        file_name="排便記録_backup.csv",
+        mime="text/csv",
+        use_container_width=True,
+        key="csv_download"
+    )
+
 with tab2:
 
     st.subheader("💊 薬記録")
@@ -325,11 +364,3 @@ with tab2:
 # -------------------
 # CSVバックアップ
 # -------------------
-
-
-        label="CSVをダウンロード",
-        data=file,
-        file_name="排便記録_backup.csv",
-        mime="text/csv",
-        use_container_width=True
-    )    
