@@ -83,18 +83,18 @@ with tab1:
             ).dt.strftime("%Y-%m-%d")
         )
 
-else:
+    else:
 
-    med_dates = set()
+        med_dates = set()
 
-for _, row in df.iterrows():
-    events.append({
-    "title": (
-        f"{row['硬さ']} / {row['量']}"
-        f"{' 💊' if row['日時'][:10] in med_dates else ''}"
-    ),
-    "start": row["日時"][:10]
-    })
+    for _, row in df.iterrows():
+        events.append({
+        "title": (
+            f"{row['硬さ']} / {row['量']}"
+            f"{' 💊' if row['日時'][:10] in med_dates else ''}"
+        ),
+        "start": row["日時"][:10]
+        })
 calendar_options = {
     "initialView": "dayGridMonth",
     "locale": "ja",
