@@ -104,7 +104,7 @@ with tab1:
         .dt.strftime("%Y-%m-%d")
     )
 
-      poop_dates = set()
+    poop_dates = set()
 
     # 排便記録イベント
     for _, row in df.iterrows():
