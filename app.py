@@ -95,11 +95,13 @@ with tab1:
         conn
     )
 
-    med_dates = set(
+     med_dates = set(
         pd.to_datetime(
             med_df["date"],
             errors="coerce"
-        ).dt.strftime("%Y-%m-%d")
+        )
+        .dropna()
+        .dt.strftime("%Y-%m-%d")
     )
 
     poop_dates = set()
