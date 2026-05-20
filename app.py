@@ -138,8 +138,7 @@ with tab1:
             "right": ""
         }
     }
-
-    calendar(events=events, options=calendar_options)        
+      
     calendar(events=events, options=calendar_options)
     today = datetime.now().strftime("%Y-%m-%d")
 
