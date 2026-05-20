@@ -388,7 +388,7 @@ with tab2:
         ))
 
         conn.commit()
-
+        st.write("薬保存ボタン通過")
         st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
