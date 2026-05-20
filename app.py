@@ -93,7 +93,7 @@ with tab1:
         "SELECT * FROM medicine_logs",
         conn
     )
-    st.write(med_df)
+    
     med_dates = set(
         pd.to_datetime(
             med_df["date"],
@@ -388,7 +388,7 @@ with tab2:
         ))
 
         conn.commit()
-        st.write("薬保存ボタン通過")
+        
         st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
