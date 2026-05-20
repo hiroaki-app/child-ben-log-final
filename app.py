@@ -19,10 +19,6 @@ FILE = "child_ben_log.csv"
 MED_FILE = "medicine_log.csv"
 DB_FILE = "poop_log.db"
 
-st.write(DB_FILE)
-
-import os
-st.write(os.getcwd())
 
 # SQLiteデータベースの初期化
 conn = sqlite3.connect(DB_FILE)
@@ -134,71 +130,71 @@ if today_df.empty:
 else:
     st.success("今日は記録済みです")
 
-    # -------------------
-    # 入力フォーム
-    # -------------------
-    with st.form("record_form"):
-        st.subheader("記録する")
+# -------------------
+# 入力フォーム
+# -------------------
+with st.form("record_form"):
+    st.subheader("記録する")
 
-        JST = timezone(timedelta(hours=9))
-        now = datetime.now(JST)
+    JST = timezone(timedelta(hours=9))
+    now = datetime.now(JST)
 
-        selected_date = st.date_input(
-        "日付",
-        value=now.date()
-        )
+    selected_date = st.date_input(
+    "日付",
+    value=now.date()
+    )
 
-        selected_time = st.time_input(
-        "時刻",
-        value=now.time()
-        )
+    selected_time = st.time_input(
+    "時刻",
+    value=now.time()
+    )
 
-        record_datetime = datetime.combine(selected_date, selected_time)
+    record_datetime = datetime.combine(selected_date, selected_time)
 
-        hardness = st.slider(
-        "便スケール（1=コロコロ硬便 / 7=水様便）",
-        1,
-        7,
-        4
-        )
-        amount = st.radio("量", ["少", "中", "多"])
-        color = st.selectbox("色", ["黄", "茶", "濃茶", "黒", "緑"])
-        blood = st.checkbox("出血あり")
+    hardness = st.slider(
+    "便スケール（1=コロコロ硬便 / 7=水様便）",
+    1,
+    7,
+    4
+    )
+    amount = st.radio("量", ["少", "中", "多"])
+    color = st.selectbox("色", ["黄", "茶", "濃茶", "黒", "緑"])
+    blood = st.checkbox("出血あり")
+    
         
-            
-        memo = st.text_area("メモ")
+    memo = st.text_area("メモ")
 
-        submitted = st.form_submit_button(
-        "記録する",
-        use_container_width=True
-        )
+    submitted = st.form_submit_button(
+    "記録する",
+    use_container_width=True
+    )
 
-        if submitted:
-            new_data = {
-                "日時": record_datetime.strftime("%Y-%m-%d %H:%M"),
-                "硬さ": hardness,
-                "量": amount,
-                "色": color,
-                "出血": blood,
-                "メモ": memo
-            }
+    if submitted:
+        new_data = {
+            "日時": record_datetime.strftime("%Y-%m-%d %H:%M"),
+            "硬さ": hardness,
+            "量": amount,
+            "色": color,
+            "出血": blood,
+            "メモ": memo
+        }
 
-            df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
-            c.execute("""
-            INSERT INTO poop_logs
-            (date_time, hardness, amount, color, blood, memo)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """, (
-                now,
-                hardness,
-                amount,
-                color,
-                blood,
-                memo
-            ))
-            conn.commit()
-            df.to_csv(FILE, index=False)
-            st.success("記録しました！")
+        df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
+        c.execute("""
+        INSERT INTO poop_logs
+        (date_time, hardness, amount, color, blood, memo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            now,
+            hardness,
+            amount,
+            color,
+            blood,
+            memo
+        ))
+        conn.commit()
+        df.to_csv(FILE, index=False)
+        st.success("記録しました！")
 
 # ------------------- 
 # 履歴
@@ -360,7 +356,7 @@ with open(FILE, "rb") as file:
         label="CSVをダウンロード",
         data=file,
         file_name="排便記録_backup.csv",
-        mime="text/csv",
+        mime="text/csv",ƒF
         use_container_width=True,
         key="csv_download"
     )
