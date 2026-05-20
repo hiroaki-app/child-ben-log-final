@@ -94,7 +94,7 @@ with tab1:
         conn
     )
     st.write(med_df)
-    
+
     med_dates = set(
         pd.to_datetime(
             med_df["date"],
@@ -378,19 +378,29 @@ with tab2:
 
     if st.button("薬を保存"):
 
-        c.execute("""
-            INSERT INTO medicine_logs
-            (date, medicine_amount, memo)
-            VALUES (?, ?, ?)
-        """, (
-            str(med_date),
-            medicine_amount,
-            memo
-        ))
+    st.write("① ボタン通過")
 
-        conn.commit()
-        
-        st.success("薬記録を保存しました")
+    c.execute("""
+        INSERT INTO medicine_logs
+        (date, medicine_amount, memo)
+        VALUES (?, ?, ?)
+    """, (
+        str(med_date),
+        medicine_amount,
+        memo
+    ))
+
+    conn.commit()
+
+    st.write("② commit通過")
+
+    med_check = pd.read_sql_query(
+        "SELECT * FROM medicine_logs",
+        conn
+    )
+    st.write(med_check)
+
+    st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
 # -------------------
