@@ -267,10 +267,10 @@ with tab1:
             use_container_width=True,
             num_rows="dynamic"
             )
-    if st.button("履歴を保存"):
+        if st.button("履歴を保存"):
 
-        edited_df.to_csv(FILE, index=False)
-        st.success("履歴を更新しました！")
+            edited_df.to_csv(FILE, index=False)
+            st.success("履歴を更新しました！")
 
         st.subheader("記録削除")
 
@@ -281,10 +281,10 @@ with tab1:
                 f"{df.loc[x, '日時']} / 硬さ:{df.loc[x, '硬さ']} / 量:{df.loc[x, '量']}"
         )
 
-    if st.button("この記録を削除", use_container_width=True):
-        df = df.drop(delete_index)
-        df.to_csv(FILE, index=False)
-        st.success("削除しました！")
+        if st.button("この記録を削除", use_container_width=True):
+            df = df.drop(delete_index)
+            df.to_csv(FILE, index=False)
+            st.success("削除しました！")
 
     else:
         st.info("まだ記録がありません")
