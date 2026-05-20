@@ -378,29 +378,29 @@ with tab2:
 
     if st.button("薬を保存"):
 
-    st.write("① ボタン通過")
+        st.write("① ボタン通過")
 
-    c.execute("""
-        INSERT INTO medicine_logs
-        (date, medicine_amount, memo)
-        VALUES (?, ?, ?)
-    """, (
-        str(med_date),
-        medicine_amount,
-        memo
-    ))
+        c.execute("""
+            INSERT INTO medicine_logs
+            (date, medicine_amount, memo)
+            VALUES (?, ?, ?)
+        """, (
+            str(med_date),
+            medicine_amount,
+            memo
+        ))
 
-    conn.commit()
+        conn.commit()
 
-    st.write("② commit通過")
+        st.write("② commit通過")
 
-    med_check = pd.read_sql_query(
-        "SELECT * FROM medicine_logs",
-        conn
-    )
-    st.write(med_check)
+        med_check = pd.read_sql_query(
+            "SELECT * FROM medicine_logs",
+            conn
+        )
+        st.write(med_check)
 
-    st.success("薬記録を保存しました")
+        st.success("薬記録を保存しました")
 # -------------------
 # CSVバックアップ
 # -------------------
