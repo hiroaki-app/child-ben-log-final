@@ -129,6 +129,17 @@ with tab1:
                 "title": "💊",
                 "start": med_date
             })
+    calendar_options = {
+        "initialView": "dayGridMonth",
+        "locale": "ja",
+        "headerToolbar": {
+            "left": "prev,next today",
+            "center": "title",
+            "right": ""
+        }
+    }
+
+    calendar(events=events, options=calendar_options)        
     calendar(events=events, options=calendar_options)
     today = datetime.now().strftime("%Y-%m-%d")
 
