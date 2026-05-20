@@ -350,13 +350,13 @@ if st.button("PDFを作成"):
         )
 st.subheader("💾 CSVバックアップ")
 
-with open(FILE, "rb") as file:  
+with open(FILE, "rb") as file:
 
     st.download_button(
         label="CSVをダウンロード",
         data=file,
         file_name="排便記録_backup.csv",
-        mime="text/csv",ƒF
+        mime="text/csv",
         use_container_width=True,
         key="csv_download"
     )
