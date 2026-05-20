@@ -132,18 +132,18 @@ with tab1:
     calendar_options = {
         "initialView": "dayGridMonth",
         "locale": "ja",
+        "height": 650,
         "headerToolbar": {
             "left": "prev,next today",
             "center": "title",
             "right": ""
         }
     }
-      
+
     calendar(
         events=events,
         options=calendar_options,
-        key="poop_calendar",
-        height=650
+        key="poop_calendar"
     )
     today = datetime.now().strftime("%Y-%m-%d")
 
