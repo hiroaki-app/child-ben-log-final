@@ -89,12 +89,11 @@ with tab1:
     st.subheader("📅 排便カレンダー")
 
     events = []
-    
+
     med_df = pd.read_sql_query(
         "SELECT * FROM medicine_logs",
         conn
     )
-    
 
     med_dates = set(
         pd.to_datetime(
@@ -103,24 +102,33 @@ with tab1:
         ).dt.strftime("%Y-%m-%d")
     )
 
-    for _, row in df.iterrows():
-        events.append({
-        "title": (
-            f"{row['硬さ']} / {row['量']}"
-            f"{' 💊' if pd.to_datetime(row['日時']).strftime('%Y-%m-%d') in med_dates else ''}"
-        ),
-        "start": row["日時"][:10]
-        })
-    calendar_options = {
-        "initialView": "dayGridMonth",
-        "locale": "ja",
-        "headerToolbar": {
-            "left": "prev,next today",
-            "center": "title",
-            "right": ""
-        }
-    }
+    poop_dates = set()
 
+    # 排便記録イベント
+    for _, row in df.iterrows():
+
+        poop_date = pd.to_datetime(
+            row["日時"],
+            errors="coerce"
+        ).strftime("%Y-%m-%d")
+
+        poop_dates.add(poop_date)
+
+        events.append({
+            "title": (
+                f"{row['硬さ']} / {row['量']}"
+                f"{' 💊' if poop_date in med_dates else ''}"
+            ),
+            "start": poop_date
+        })
+
+    # 薬だけの日イベント
+    for med_date in med_dates:
+        if med_date not in poop_dates:
+            events.append({
+                "title": "💊",
+                "start": med_date
+            })
     calendar(events=events, options=calendar_options)
     today = datetime.now().strftime("%Y-%m-%d")
 
