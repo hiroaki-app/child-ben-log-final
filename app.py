@@ -89,12 +89,12 @@ with tab1:
     st.subheader("📅 排便カレンダー")
 
     events = []
-    st.write(df)
+    
     med_df = pd.read_sql_query(
         "SELECT * FROM medicine_logs",
         conn
     )
-    st.write(med_df)
+    
 
     med_dates = set(
         pd.to_datetime(
