@@ -104,47 +104,47 @@ with tab1:
         .dt.strftime("%Y-%m-%d")
     )
 
-   poop_dates = set()
+      poop_dates = set()
 
-# 排便記録イベント
-for _, row in df.iterrows():
+    # 排便記録イベント
+    for _, row in df.iterrows():
 
-    poop_date = pd.to_datetime(
-        row["日時"],
-        errors="coerce"
-    )
+        poop_date = pd.to_datetime(
+            row["日時"],
+            errors="coerce"
+        )
 
-    if pd.notna(poop_date):
-        poop_date = poop_date.strftime("%Y-%m-%d")
+        if pd.notna(poop_date):
+            poop_date = poop_date.strftime("%Y-%m-%d")
 
-        poop_dates.add(poop_date)
+            poop_dates.add(poop_date)
 
-        events.append({
-            "title": (
-                f"{row['硬さ']} / {row['量']}"
-                f"{' 💊' if poop_date in med_dates else ''}"
-            ),
-            "start": poop_date
-        })
+            events.append({
+                "title": (
+                    f"{row['硬さ']} / {row['量']}"
+                    f"{' 💊' if poop_date in med_dates else ''}"
+                ),
+                "start": poop_date
+            })
 
-# 薬だけの日イベント
-for med_date in med_dates:
-    if med_date not in poop_dates:
-        events.append({
-            "title": "💊",
-            "start": med_date
-        })
+    # 薬だけの日イベント
+    for med_date in med_dates:
+        if med_date not in poop_dates:
+            events.append({
+                "title": "💊",
+                "start": med_date
+            })
 
-calendar_options = {
-    "initialView": "dayGridMonth",
-    "locale": "ja",
-    "height": 650,
-    "headerToolbar": {
-        "left": "prev,next today",
-        "center": "title",
-        "right": ""
+    calendar_options = {
+        "initialView": "dayGridMonth",
+        "locale": "ja",
+        "height": 650,
+        "headerToolbar": {
+            "left": "prev,next today",
+            "center": "title",
+            "right": ""
+        }
     }
-}
 
     calendar(
         events=events,
