@@ -139,7 +139,12 @@ with tab1:
         }
     }
       
-    calendar(events=events, options=calendar_options)
+    calendar(
+        events=events,
+        options=calendar_options,
+        key="poop_calendar",
+        height=650
+    )
     today = datetime.now().strftime("%Y-%m-%d")
 
     today_df = df[
