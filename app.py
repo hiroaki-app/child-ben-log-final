@@ -93,7 +93,7 @@ with tab1:
         "SELECT * FROM medicine_logs",
         conn
     )
-
+    st.write(med_df)
     med_dates = set(
         pd.to_datetime(
             med_df["date"],
