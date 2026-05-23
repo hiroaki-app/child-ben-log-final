@@ -426,7 +426,7 @@ with tab2:
         "SELECT * FROM medicine_logs ORDER BY date DESC",
         conn
     )
-    st.dataframe(med_check, use_container_width=True)
+    #st.dataframe(med_check, use_container_width=True)
 # -------------------
 # CSVバックアップ
 # -------------------
