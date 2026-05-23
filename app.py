@@ -18,7 +18,10 @@ from io import BytesIO
 FILE = "child_ben_log.csv"
 MED_FILE = "medicine_log.csv"
 DB_FILE = "poop_log.db"
-
+if not os.path.exists(FILE):
+...
+if not os.path.exists(MED_FILE):
+...
 
 # SQLiteデータベースの初期化
 conn = sqlite3.connect(DB_FILE)
