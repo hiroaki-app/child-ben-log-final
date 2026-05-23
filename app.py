@@ -281,7 +281,7 @@ with tab1:
         #if st.button("履歴を保存"):
 
             #edited_df.to_csv(FILE, index=False)
-            st.success("履歴を更新しました！")
+        st.success("履歴を更新しました！")
 
         st.subheader("記録削除")
 
