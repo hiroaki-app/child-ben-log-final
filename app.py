@@ -120,20 +120,16 @@ with tab1:
             poop_dates.add(poop_date)
 
             events.append({
-                "title": (
-                    f"{row['硬さ']} / {row['量']}"
-                    f"{' 💊' if poop_date in med_dates else ''}"
-                ),
+                "title": f"{row['硬さ']} / {row['量']}",
                 "start": poop_date
             })
 
     # 薬だけの日イベント
     for med_date in med_dates:
-        if med_date not in poop_dates:
-            events.append({
-                "title": "💊",
-                "start": med_date
-            })
+        events.append({
+            "title": "💊",
+            "start": med_date
+        })
 
     calendar_options = {
         "initialView": "dayGridMonth",
