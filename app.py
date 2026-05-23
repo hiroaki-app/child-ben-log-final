@@ -90,10 +90,7 @@ with tab1:
 
     events = []
 
-    med_df = pd.read_sql_query(
-        "SELECT * FROM medicine_logs",
-        conn
-    )
+    med_df = pd.read_csv(MED_FILE)
 
     med_dates = set(
         pd.to_datetime(
@@ -403,24 +400,24 @@ with tab2:
     memo = st.text_input("メモ（任意）")
 
     if st.button("薬を保存"):
-        c.execute("""
-            INSERT INTO medicine_logs
-            (date, medicine_amount, memo)
-            VALUES (?, ?, ?)
-        """, (
-            str(med_date),
-            medicine_amount,
-            memo
-        ))
 
-        conn.commit()
+        new_med = {
+            "日付": str(med_date),
+            "薬量": medicine_amount,
+            "メモ": memo
+        }
+
+        med_df = pd.read_csv(MED_FILE)
+        med_df = pd.concat(
+            [med_df, pd.DataFrame([new_med])],
+            ignore_index=True
+        )
+        med_df.to_csv(MED_FILE, index=False)
+
         st.success("薬記録を保存しました")
 
-    # 薬履歴を常時表示
-    med_check = pd.read_sql_query(
-        "SELECT * FROM medicine_logs ORDER BY date DESC",
-        conn
-    )
-    st.dataframe(med_check, use_container_width=True)
+    # 常時履歴表示
+    med_df = pd.read_csv(MED_FILE)
+    st.dataframe(med_df, use_container_width=True)
 # CSVバックアップ
 # -------------------
