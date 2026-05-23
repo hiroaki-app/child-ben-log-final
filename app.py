@@ -300,79 +300,42 @@ with tab1:
         buffer = BytesIO()
 
         doc = SimpleDocTemplate(buffer)
-
-        styles = getSampleStyleSheet()
-
-        pdfmetrics.registerFont(
-            UnicodeCIDFont('HeiseiKakuGo-W5')
-        )
-
-        styles['Title'].fontName = 'HeiseiKakuGo-W5'
-        styles['BodyText'].fontName = 'HeiseiKakuGo-W5'
         elements = []
 
-        elements.append(
-            Paragraph("排便記録", styles['Title'])
-        )
+        # 表作成
+        data = [["日時", "硬さ", "量", "色", "薬量", "メモ"]]
 
-        start_date = filtered_df["日時"].min()
-        end_date = filtered_df["日時"].max()
-
-        period_text = (
-            f"対象期間: "
-            f"{start_date.strftime('%Y/%m/%d')} "
-            f"〜 "
-            f"{end_date.strftime('%Y/%m/%d')}"
-        )
-
-        elements.append(
-            Paragraph(period_text, styles['BodyText'])
-        )
-
-        elements.append(Spacer(1, 10))
-
-        pdf_df = filtered_df.sort_values("日時")
-
-        data = [
-            ["日時", "硬さ", "量", "色", "薬量", "メモ"]
-        ]
-
-        for _, row in pdf_df.iterrows():
-
-            medicine = row["薬量"] if "薬量" in row.index and pd.notna(row["薬量"]) else ""
+        for _, row in df.iterrows():
+            medicine = row["薬量"] if "薬量" in row else ""
             memo = row["メモ"] if pd.notna(row["メモ"]) else ""
 
             data.append([
-            str(row["日時"]),
-            str(row["硬さ"]),
-            str(row["量"]),  
-            str(row["色"]),
-            str(medicine), 
-            str(memo)
+                str(row["日時"]),
+                str(row["硬さ"]),
+                str(row["量"]),
+                str(row["色"]),
+                str(medicine),
+                str(memo)
             ])
 
-            table = Table(data)
+        table = Table(data)
 
-            table.setStyle(TableStyle([
-                ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
-                ("GRID", (0,0), (-1,-1), 1, colors.black),
-                ("FONTNAME", (0,0), (-1,-1), "HeiseiKakuGo-W5"),
-                ("FONTSIZE", (0,0), (-1,-1), 10),
-            ]))
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
+            ("GRID", (0,0), (-1,-1), 1, colors.black),
+            ("FONTNAME", (0,0), (-1,-1), "HeiseiKakuGo-W5"),
+            ("FONTSIZE", (0,0), (-1,-1), 10),
+        ]))
 
-            elements.append(table)
+        elements.append(table)
+        doc.build(elements)
 
-            doc.build(elements)
-
-            pdf = buffer.getvalue()
-
-            st.download_button(
-                label="PDFダウンロード",
-                data=pdf,
-                file_name="排便記録.pdf",
-                mime="application/pdf",
-                key="pdf_download"
-            )
+        st.download_button(
+            "PDFダウンロード",
+            data=buffer.getvalue(),
+            file_name="排便記録.pdf",
+            mime="application/pdf"
+        )
     st.subheader("💾 CSVバックアップ")
 
     with open(FILE, "rb") as file:
