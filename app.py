@@ -370,7 +370,8 @@ with tab1:
                 label="PDFダウンロード",
                 data=pdf,
                 file_name="排便記録.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
+                key="pdf_download"
             )
     st.subheader("💾 CSVバックアップ")
 
