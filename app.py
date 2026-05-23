@@ -93,10 +93,10 @@ with tab1:
     med_df = pd.read_csv(MED_FILE)
 
     med_dates = set(
-        pd.to_datetime(
-            med_df["date"],
-            errors="coerce"
-        )
+    pd.to_datetime(
+        med_df["日付"],
+        errors="coerce"
+    )
         .dropna()
         .dt.strftime("%Y-%m-%d")
     )
