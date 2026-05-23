@@ -280,8 +280,8 @@ with tab1:
             )
         #if st.button("履歴を保存"):
 
-            #edited_df.to_csv(FILE, index=False)
-        st.success("履歴を更新しました！")
+        #   edited_df.to_csv(FILE, index=False)
+        #   st.success("履歴を更新しました！")
 
         st.subheader("記録削除")
 
@@ -346,7 +346,7 @@ with tab1:
 
         for _, row in pdf_df.iterrows():
 
-            medicine = row["薬量"] if pd.notna(row["薬量"]) else ""
+            medicine = row["薬量"] if "薬量" in row.index and pd.notna(row["薬量"]) else ""
             memo = row["メモ"] if pd.notna(row["メモ"]) else ""
 
             data.append([
