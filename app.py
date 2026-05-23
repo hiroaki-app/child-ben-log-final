@@ -18,10 +18,25 @@ from io import BytesIO
 FILE = "child_ben_log.csv"
 MED_FILE = "medicine_log.csv"
 DB_FILE = "poop_log.db"
+
 if not os.path.exists(FILE):
-...
+    pd.DataFrame(columns=[
+        "日時",
+        "硬さ",
+        "量",
+        "色",
+        "出血",
+        "腹痛",
+        "排便痛",
+        "メモ"
+    ]).to_csv(FILE, index=False)
+
 if not os.path.exists(MED_FILE):
-...
+    pd.DataFrame(columns=[
+        "日付",
+        "薬量",
+        "メモ"
+    ]).to_csv(MED_FILE, index=False)
 
 # SQLiteデータベースの初期化
 conn = sqlite3.connect(DB_FILE)
@@ -302,26 +317,86 @@ with tab1:
 
         buffer = BytesIO()
 
+        pdfmetrics.registerFont(
+            UnicodeCIDFont("HeiseiKakuGo-W5")
+        )
         doc = SimpleDocTemplate(buffer)
         elements = []
 
         # 表作成
-        data = [["日時", "硬さ", "量", "色", "薬量", "メモ"]]
+        data = [["日付", "薬量", "減量メモ", "排便"]]
 
-        for _, row in df.iterrows():
-            medicine = row["薬量"] if "薬量" in row else ""
-            memo = row["メモ"] if pd.notna(row["メモ"]) else ""
+        # 排便データを日付ごとにまとめる
+        df["日付"] = pd.to_datetime(
+            df["日時"],
+            errors="coerce"
+        ).dt.strftime("%Y-%m-%d")
+
+        poop_grouped = {}
+
+        for date_value, group in df.groupby("日付"):
+            poop_list = []
+
+            group = group.sort_values("日時")
+
+            for _, row in group.iterrows():
+                time_str = pd.to_datetime(
+                    row["日時"],
+                    errors="coerce"
+                ).strftime("%H:%M")
+
+                poop_list.append(
+                    f"{time_str} 硬{row['硬さ']}/{row['量']}/{row['色']}"
+                )
+
+            poop_grouped[date_value] = "、".join(poop_list)
+
+        # 薬データ読み込み
+        med_df = pd.read_csv(MED_FILE)
+
+        med_grouped = {}
+
+        if not med_df.empty:
+            for date_value, group in med_df.groupby("日付"):
+
+                amount_list = []
+                memo_list = []
+
+                for _, row in group.iterrows():
+                    amount_list.append(str(row["薬量"]))
+
+                    if pd.notna(row["メモ"]) and str(row["メモ"]).strip():
+                        memo_list.append(str(row["メモ"]))
+
+                med_grouped[date_value] = {
+                    "amount": " / ".join(amount_list),
+                    "memo": " / ".join(memo_list)
+                }
+        # 全日付まとめ
+        all_dates = sorted(
+            set(poop_grouped.keys()) | set(med_grouped.keys()),
+            reverse=True
+        )
+
+        for date_value in all_dates:
+            medicine = med_grouped.get(
+                date_value,
+                {"amount": "", "memo": ""}
+            )
+
+            poop_text = poop_grouped.get(date_value, "")
 
             data.append([
-                str(row["日時"]),
-                str(row["硬さ"]),
-                str(row["量"]),
-                str(row["色"]),
-                str(medicine),
-                str(memo)
+                str(date_value),
+                medicine["amount"],
+                medicine["memo"],
+                poop_text
             ])
 
-        table = Table(data)
+        table = Table(
+            data,
+            colWidths=[80, 60, 100, 260]
+        )
 
         table.setStyle(TableStyle([
             ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
