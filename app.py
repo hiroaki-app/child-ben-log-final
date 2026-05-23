@@ -408,8 +408,6 @@ with tab2:
 
     if st.button("薬を保存"):
 
-        #st.write("① ボタン通過")
-
         c.execute("""
             INSERT INTO medicine_logs
             (date, medicine_amount, memo)
@@ -421,16 +419,14 @@ with tab2:
         ))
 
         conn.commit()
-
-        #st.write("② commit通過")
-
-        med_check = pd.read_sql_query(
-            "SELECT * FROM medicine_logs",
-            conn
-        )
-        st.write(med_check)
-
         st.success("薬記録を保存しました")
+
+    # 常時履歴表示
+    med_check = pd.read_sql_query(
+        "SELECT * FROM medicine_logs ORDER BY date DESC",
+        conn
+    )
+    st.dataframe(med_check, use_container_width=True)
 # -------------------
 # CSVバックアップ
 # -------------------
