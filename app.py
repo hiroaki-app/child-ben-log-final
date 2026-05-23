@@ -278,9 +278,9 @@ with tab1:
             use_container_width=True,
             num_rows="dynamic"
             )
-        if st.button("履歴を保存"):
+        #if st.button("履歴を保存"):
 
-            edited_df.to_csv(FILE, index=False)
+            #edited_df.to_csv(FILE, index=False)
             st.success("履歴を更新しました！")
 
         st.subheader("記録削除")
@@ -408,7 +408,7 @@ with tab2:
 
     if st.button("薬を保存"):
 
-        st.write("① ボタン通過")
+        #st.write("① ボタン通過")
 
         c.execute("""
             INSERT INTO medicine_logs
@@ -422,7 +422,7 @@ with tab2:
 
         conn.commit()
 
-        st.write("② commit通過")
+        #st.write("② commit通過")
 
         med_check = pd.read_sql_query(
             "SELECT * FROM medicine_logs",
