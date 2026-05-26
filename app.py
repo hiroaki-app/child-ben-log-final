@@ -95,12 +95,17 @@ tab1, tab2 = st.tabs([" 排便記録", "💊 薬記録"])
 
 with tab1:
 
-    # データ読み込み
-    if os.path.exists(FILE):
-        df = pd.read_csv(FILE)
-    else:
-        df = pd.DataFrame(columns=["日時","硬さ","量","色","出血","メモ"])
-
+   # データ読み込み（DBから）
+    df = pd.read_sql_query("""
+        SELECT
+            date_time as 日時,
+            hardness as 硬さ,
+            amount as 量,
+            color as 色,
+            blood as 出血,
+            memo as メモ
+        FROM poop_logs
+    """, conn)
     # -------------------
     # カレンダー表示（フォームの外）
     # -------------------
@@ -108,7 +113,10 @@ with tab1:
 
     events = []
 
-    med_df = pd.read_csv(MED_FILE)
+    med_df = pd.read_sql_query(
+        "SELECT date as 日付, medicine_amount as 薬量, memo as メモ FROM medicine_logs",
+        conn
+    )
 
     med_dates = set(
     pd.to_datetime(
@@ -156,7 +164,7 @@ with tab1:
             "right": ""
         }
     }
-
+    
     calendar(
         events=events,
         options=calendar_options,
@@ -227,7 +235,7 @@ with tab1:
             (date_time, hardness, amount, color, blood, memo)
             VALUES (?, ?, ?, ?, ?, ?)
             """, (
-                now,
+                record_datetime.strftime("%Y-%m-%d %H:%M:%S"),
                 hardness,
                 amount,
                 color,
@@ -257,7 +265,8 @@ with tab1:
     filtered_df["日時"] = pd.to_datetime(
         filtered_df["日時"],
         errors="coerce"
-    )
+    ).dt.tz_localize(None)
+    
 
     if period != "全期間":
 
@@ -304,9 +313,16 @@ with tab1:
         )
 
         if st.button("この記録を削除", use_container_width=True):
-            df = df.drop(delete_index)
-            df.to_csv(FILE, index=False)
+            delete_datetime = str(df.loc[delete_index, "日時"])
+
+            c.execute(
+                "DELETE FROM poop_logs WHERE date_time = ?",
+                (delete_datetime,)
+            )
+            conn.commit()
+
             st.success("削除しました！")
+            st.rerun()
 
     else:
         st.info("まだ記録がありません")
@@ -316,7 +332,10 @@ with tab1:
     if st.button("PDFを作成"):
 
         buffer = BytesIO()
-
+        styles = getSampleStyleSheet()
+        styles["Normal"].fontName = "HeiseiKakuGo-W5"
+        styles["Normal"].fontSize = 10
+        styles["Normal"].leading = 12
         pdfmetrics.registerFont(
             UnicodeCIDFont("HeiseiKakuGo-W5")
         )
@@ -324,14 +343,27 @@ with tab1:
         elements = []
 
         # 表作成
-        data = [["日付", "薬量", "減量メモ", "排便"]]
-
+        data = [["日付", "薬量", "メモ", "排便"]]
+        df = pd.read_sql_query(
+            """
+            SELECT
+                date_time as 日時,
+                hardness as 硬さ,
+                amount as 量,
+                color as 色,
+                blood as 出血,
+                memo as メモ
+            FROM poop_logs
+            """,
+            conn
+        )
+        
         # 排便データを日付ごとにまとめる
-        df["日付"] = pd.to_datetime(
-            df["日時"],
-            errors="coerce"
-        ).dt.strftime("%Y-%m-%d")
-
+        df["日付"] = (
+            df["日時"]
+            .astype(str)
+            .str[:10]
+        )
         poop_grouped = {}
 
         for date_value, group in df.groupby("日付"):
@@ -345,15 +377,23 @@ with tab1:
                     errors="coerce"
                 ).strftime("%H:%M")
 
+                blood_text = " / 出血有" if row["出血"] == 1 else ""
+
+                memo_text = ""
+                if pd.notna(row["メモ"]) and str(row["メモ"]).strip():
+                    memo_text = f" / {row['メモ']}"
+
                 poop_list.append(
-                    f"{time_str} 硬{row['硬さ']}/{row['量']}/{row['色']}"
+                    f"{time_str} 硬{row['硬さ']}/{row['量']}/{row['色']}{blood_text}{memo_text}"
                 )
-
-            poop_grouped[date_value] = "、".join(poop_list)
-
+            poop_grouped[date_value] = "\n".join(poop_list)
+            
         # 薬データ読み込み
-        med_df = pd.read_csv(MED_FILE)
-
+        med_df = pd.read_sql_query(
+            "SELECT date as 日付, medicine_amount as 薬量, memo as メモ FROM medicine_logs",
+            conn
+        )
+        
         med_grouped = {}
 
         if not med_df.empty:
@@ -390,19 +430,25 @@ with tab1:
                 str(date_value),
                 medicine["amount"],
                 medicine["memo"],
-                poop_text
+                Paragraph(
+                poop_text.replace("\n", "<br/>"),
+                styles["Normal"]
+                )
             ])
 
         table = Table(
             data,
-            colWidths=[80, 60, 100, 260]
+            colWidths=[80, 60, 100, 260],
+            repeatRows=1
         )
 
         table.setStyle(TableStyle([
             ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
             ("GRID", (0,0), (-1,-1), 1, colors.black),
             ("FONTNAME", (0,0), (-1,-1), "HeiseiKakuGo-W5"),
-            ("FONTSIZE", (0,0), (-1,-1), 10),
+            ("VALIGN", (0,0), (-1,-1), "TOP"),
+            ("LEFTPADDING", (0,0), (-1,-1), 5),
+            ("RIGHTPADDING", (0,0), (-1,-1), 5),
         ]))
 
         elements.append(table)
@@ -449,17 +495,25 @@ with tab2:
             "メモ": memo
         }
 
-        med_df = pd.read_csv(MED_FILE)
-        med_df = pd.concat(
-            [med_df, pd.DataFrame([new_med])],
-            ignore_index=True
-        )
-        med_df.to_csv(MED_FILE, index=False)
+        c.execute("""
+        INSERT INTO medicine_logs
+        (date, medicine_amount, memo)
+        VALUES (?, ?, ?)
+        """, (
+            str(med_date),
+            medicine_amount,
+            memo
+        ))
+        conn.commit()
 
         st.success("薬記録を保存しました")
+        st.rerun()
 
     # 常時履歴表示
-    med_df = pd.read_csv(MED_FILE)
-    st.dataframe(med_df, use_container_width=True)
+    med_df = pd.read_sql_query(
+    "SELECT date as 日付, medicine_amount as 薬量, memo as メモ FROM medicine_logs ORDER BY date DESC",
+    conn
+    )
+    st.dataframe(med_df, width="stretch")
 # CSVバックアップ
 # -------------------
