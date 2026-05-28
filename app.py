@@ -5,6 +5,7 @@ from datetime import date
 from streamlit_calendar import calendar
 import os
 import sqlite3
+from pathlib import Path
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
@@ -15,9 +16,11 @@ from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 
 from io import BytesIO
 
-FILE = "child_ben_log.csv"
-MED_FILE = "medicine_log.csv"
-DB_FILE = "poop_log.db"
+BASE_DIR = Path(__file__).parent
+
+FILE = BASE_DIR / "child_ben_log.csv"
+MED_FILE = BASE_DIR / "medicine_log.csv"
+DB_FILE = BASE_DIR / "poop_log.db"
 
 if not os.path.exists(FILE):
     pd.DataFrame(columns=[
