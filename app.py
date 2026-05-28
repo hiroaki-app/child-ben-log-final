@@ -101,6 +101,7 @@ with tab1:
    # データ読み込み（DBから）
     df = pd.read_sql_query("""
         SELECT
+            id,
             date_time as 日時,
             hardness as 硬さ,
             amount as 量,
@@ -284,8 +285,7 @@ with tab1:
 
     if not filtered_df.empty:
         display_df = filtered_df.sort_values("日時", ascending=False).copy()
-        display_df["日時"] = display_df["日時"].dt.strftime("%Y-%m-%d %H:%M")
-
+        display_df["日時"] = display_df["日時"].astype(str)
         display_df["出血"] = display_df["出血"].fillna(False)
 
         display_df["出血"] = display_df["出血"].apply(
@@ -317,11 +317,11 @@ with tab1:
         )
 
         if st.button("この記録を削除", use_container_width=True):
-            delete_datetime = str(df.loc[delete_index, "日時"])
+            delete_id = int(df.loc[delete_index, "id"])
 
             c.execute(
-                "DELETE FROM poop_logs WHERE date_time = ?",
-                (delete_datetime,)
+                "DELETE FROM poop_logs WHERE id = ?",
+                (delete_id,)
             )
             conn.commit()
 
