@@ -284,6 +284,7 @@ with tab1:
 
     if not filtered_df.empty:
         display_df = filtered_df.sort_values("日時", ascending=False).copy()
+        display_df["日時"] = display_df["日時"].dt.strftime("%Y-%m-%d %H:%M")
 
         display_df["出血"] = display_df["出血"].fillna(False)
 
@@ -369,6 +370,7 @@ with tab1:
         )
         poop_grouped = {}
 
+        df = df.sort_values("日時", ascending=False)
         for date_value, group in df.groupby("日付"):
             poop_list = []
 
@@ -400,7 +402,9 @@ with tab1:
         med_grouped = {}
 
         if not med_df.empty:
+            med_df = med_df.sort_values("日付", ascending=False)
             for date_value, group in med_df.groupby("日付"):
+
 
                 amount_list = []
                 memo_list = []
