@@ -358,6 +358,7 @@ with tab1:
                 blood as 出血,
                 memo as メモ
             FROM poop_logs
+            ORDER BY date_time ASC
             """,
             conn
         )
@@ -395,7 +396,14 @@ with tab1:
             
         # 薬データ読み込み
         med_df = pd.read_sql_query(
-            "SELECT date as 日付, medicine_amount as 薬量, memo as メモ FROM medicine_logs",
+            """
+            SELECT
+                date as 日付,
+                medicine_amount as 薬量,
+                memo as メモ
+            FROM medicine_logs
+            ORDER BY date ASC
+            """,
             conn
         )
         
@@ -421,8 +429,7 @@ with tab1:
                 }
         # 全日付まとめ
         all_dates = sorted(
-            set(poop_grouped.keys()) | set(med_grouped.keys()),
-            reverse=True
+            set(poop_grouped.keys()) | set(med_grouped.keys())
         )
 
         for date_value in all_dates:
